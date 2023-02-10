@@ -5,6 +5,30 @@ and 3 configurations: basic, lookback and attention.
 VERSION: Magenta 1.1.7
 """
 
+'''
+
+    math: This library is used to perform mathematical operations, such as rounding numbers.
+
+    os: This library is used to interact with the operating system, such as reading and writing files.
+
+    time: This library is used to measure the amount of time it takes for the code to run.
+
+    magenta.music: This is a library made by the Magenta team that helps generate music using machine learning.
+
+    tensorflow: This is a library made by Google that helps with machine learning and deep learning.
+
+    note_seq.protobuf: This is a library that helps the code interact with a specific type of data called "protobuf".
+
+    note_seq.protobuf.generator_pb2: This is a part of the note_seq.protobuf library that helps generate music.
+
+    visual_midi: This is a library that helps visualize the generated music.
+
+    pretty_midi: This is a library that helps format the generated music into a standard format that can be played on most music players.
+
+    absl.app: This is a library that helps the code run as an application, or a program that does a specific task.
+
+    sequence_generator_bundle: This is a part of the magenta.models.shared library that helps generate sequences of music.
+'''
 
 import math
 import os
@@ -29,7 +53,23 @@ from magenta.models.shared import sequence_generator_bundle
 from pretty_midi import PrettyMIDI
 
 
+'''
+This is the code for a function generate that generates a musical sequence using a pre-trained model in Magenta. The code performs the following steps:
 
+    Downloads the model bundle using the given bundle_name from the Magenta website if it doesn't already exist.
+
+    Initializes the generator using the given sequence_generator module and generator_id.
+
+    Loads the primer sequence using the given primer_filename if provided. If not, an empty note sequence is used.
+
+    Gets the QPM value either from the primer sequence or from the qpm argument, which is the number of quarter notes per minute.
+
+    Calculates the seconds per step and the primer sequence length in steps and time.
+
+    Calls the generator's generate method to generate the musical sequence, with various generation parameters such as temperature, beam_size, branch_factor, and steps_per_iteration.
+
+    Returns the generated musical sequence in the form of a NoteSequence object.
+  '''
 
 
 def generate(bundle_name: str,
@@ -110,6 +150,7 @@ def generate(bundle_name: str,
     primer_sequence = mm.midi_io.midi_file_to_note_sequence(
       os.path.join("primers", primer_filename))
   else:
+    print("yoyoyo")
     primer_sequence = NoteSequence()
 
   # Gets the QPM from the primer sequence. If it wasn't provided, take the
@@ -209,7 +250,7 @@ def app(unused_argv):
     "basic_rnn.mag",
     melody_rnn_sequence_generator,
     "basic_rnn",
-    primer_filename="Fur_Elisa_Beethoveen_Monophonic.mid",
+    primer_filename="Game_of_Thrones_Melody_Polyphonic.mid",
     total_length_steps=32,
     temperature=0.9)
 
@@ -220,7 +261,7 @@ def app(unused_argv):
     "lookback_rnn.mag",
     melody_rnn_sequence_generator,
     "lookback_rnn",
-    primer_filename="Fur_Elisa_Beethoveen_Monophonic.mid",
+    primer_filename="Beethoven_Symphony_5_Polyphonic.mid",
     total_length_steps=64,
     temperature=1.1)
 
@@ -230,7 +271,7 @@ def app(unused_argv):
     "attention_rnn.mag",
     melody_rnn_sequence_generator,
     "attention_rnn",
-    primer_filename="Fur_Elisa_Beethoveen_Monophonic.mid",
+    primer_filename="Fur_Elisa_Beethoveen_Polyphonic.mid",
     total_length_steps=128,
     temperature=1.1)
 
