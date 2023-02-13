@@ -105,7 +105,7 @@ set with start_time and end_time so that the new music is generated only within 
 from note_seq.protobuf import generator_pb2
 generator_options = generator_pb2.GeneratorOptions()
 generator_options.args['temperature'].float_value = 1.0  # Higher is more random; 1.0 is default.
-generator_options.generate_sections.add(start_time = generation_start_time, end_time = generation_end_time)
+generator_options.generate_sections.add(start_time=generation_start_time, end_time = generation_end_time)
 '''
 This line generates the new music using the generator object and the primer_sequence 
 we created before, with the options specified in generator_options. 
