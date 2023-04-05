@@ -11,11 +11,14 @@ import magenta.music as mm
 import tensorflow as tf
 from magenta.models.music_vae import TrainedModel, configs
 from magenta.music import DEFAULT_STEPS_PER_BAR
-from magenta.protobuf.music_pb2 import NoteSequence
+from note_seq.protobuf.music_pb2 import NoteSequence
 from six.moves import urllib
 
-from note_sequence_utils import save_midi, save_plot
+from utils import save_midi, save_plot
 
+from absl import app as absl_app
+import note_seq.protobuf
+import os
 
 def download_checkpoint(model_name: str,
                         checkpoint_name: str,
@@ -27,7 +30,8 @@ def download_checkpoint(model_name: str,
       :param checkpoint_name: magenta checkpoint name to download
       :param target_dir: local directory in which to write the checkpoint
   """
-  tf.gfile.MakeDirs(target_dir)
+  if not os.path.exists(target_dir):
+      os.makedirs(target_dir)
   checkpoint_target = os.path.join(target_dir, checkpoint_name)
   if not os.path.exists(checkpoint_target):
     response = urllib.request.urlopen(
@@ -157,4 +161,4 @@ def app(unused_argv):
 
 
 if __name__ == "__main__":
-  tf.app.run(app)
+  absl_app.run(app)

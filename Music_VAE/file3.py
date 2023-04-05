@@ -10,12 +10,15 @@ from typing import List
 import tensorflow as tf
 from magenta.models.music_vae import TrainedModel, configs
 from magenta.music import DEFAULT_STEPS_PER_BAR
-from magenta.protobuf.music_pb2 import NoteSequence
+from note_seq.protobuf.music_pb2 import NoteSequence
 from six.moves import urllib
 from visual_midi import Coloring
 
-from note_sequence_utils import save_midi, save_plot
+from utils import save_midi, save_plot
 
+from absl import app as absl_app
+import note_seq.protobuf
+import os 
 
 def download_checkpoint(model_name: str,
                         checkpoint_name: str,
@@ -27,16 +30,26 @@ def download_checkpoint(model_name: str,
       :param checkpoint_name: magenta checkpoint name to download
       :param target_dir: local directory in which to write the checkpoint
   """
-  tf.gfile.MakeDirs(target_dir)
+  if not os.path.exists(target_dir):
+      os.makedirs(target_dir)
+
   checkpoint_target = os.path.join(target_dir, checkpoint_name)
   if not os.path.exists(checkpoint_target):
-    response = urllib.request.urlopen(
-      f"https://storage.googleapis.com/magentadata/models/"
-      f"{model_name}/checkpoints/{checkpoint_name}")
-    data = response.read()
-    local_file = open(checkpoint_target, 'wb')
-    local_file.write(data)
-    local_file.close()
+        response = urllib.request.urlopen(
+        f"https://storage.googleapis.com/magentadata/models/"
+        f"{model_name}/checkpoints/{checkpoint_name}"
+    )
+    
+        # Create a local file to save the data
+        with open(checkpoint_target, 'wb') as local_file:
+            # Read and write data in chunks
+            chunk_size = 1024 * 1024  # 1 MB
+            while True:
+                chunk = response.read(chunk_size)
+                if not chunk:
+                    break
+                local_file.write(chunk)
+            local_file.close()
 
 
 def get_model(name: str):
@@ -91,4 +104,4 @@ def app(unused_argv):
 
 
 if __name__ == "__main__":
-  tf.app.run(app)
+  absl_app.run(app)
