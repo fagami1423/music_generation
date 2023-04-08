@@ -1,2 +1,9 @@
 *.mid
-Music_VAE/checkpoints/
+*.wav
+/__pycache__/*
+*/__pycache__/*
+*.abc
+*/checkpoints
+*.tar
+*.mid
+
