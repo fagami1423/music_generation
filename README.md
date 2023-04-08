@@ -10,12 +10,19 @@ https://hub.docker.com/r/misnaej/the_jam_machine
 https://colinraffel.com/projects/lmd/
 
 
-To run the Project
+## To tun the project 
 ```
-pip install -r requirements.txt
+uvicorn main:app --reload
 ```
 
-And run the project
+The default url for the application will be 
 ```
-python test.py 
+http://localhost:8000/docs
 ```
+Or open test using Postman or Isomnia
+### Tasks
+1: File handling
+2: Testing Models 
+3: Generating musics
+4: Containerize
+4: Implement CICD pipelines
