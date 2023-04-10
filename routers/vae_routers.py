@@ -1,10 +1,10 @@
 from fastapi import FastAPI, File, UploadFile, APIRouter
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from ..models.Music_VAE.music_vae_model import MusicGenerator
+from models.Music_VAE.music_vae_model import MusicGeneratorVAE
 
 music_router = APIRouter()
-music_generator = MusicGenerator()
+music_generator = MusicGeneratorVAE()
 
 class InterpolationInput(BaseModel):
     num_output: int

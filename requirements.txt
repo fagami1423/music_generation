@@ -2,3 +2,6 @@ magenta==2.1.4
 visual_midi
 muspy
 mitdeeplearning
+fastapi
+uvicorn
+python-multipart

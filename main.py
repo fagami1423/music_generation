@@ -3,7 +3,7 @@ from fastapi import FastAPI, UploadFile, File, APIRouter
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import music_router, melody_router
+from routers import music_router, melody_router
 
 app = FastAPI()
 
