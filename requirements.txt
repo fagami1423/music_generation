@@ -5,3 +5,4 @@ mitdeeplearning
 fastapi
 uvicorn
 python-multipart
+pydantic

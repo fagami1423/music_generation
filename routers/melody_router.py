@@ -1,30 +1,44 @@
 import os
-from fastapi import FastAPI, File, UploadFile, APIRouter
+from fastapi import FastAPI, UploadFile, File, Form, APIRouter
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 # from ..models.melody.music_vae_model import MusicGeneratorVAE
 
+class UploadForm(BaseModel):
+    beamsize: int
+    temperature: float
+    branchFactor: int
+    notes: str
+    totalSteps: int
+
 melody_router = APIRouter()
 # music_generator = MusicGeneratorVAE()
 
-@melody_router.post("/generate-music")
-async def generate_music(file: UploadFile = File(...)):
-    """
-        Uploads a music file to the music folder
-        returns the filename and status code
-
-    """
-    target_dir = "models/melody/primers"
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
-        file_location = os.path.join(target_dir, file.filename)
+@melody_router.post("/upload-music")
+async def create_upload_file(file: UploadFile = File(...),
+                beamsize: int = Form(...),
+                temperature: float = Form(...),
+                branchFactor: int = Form(...),
+                notes: str = Form(...),
+                totalSteps: int = Form(...)):
+    
+    if not os.path.exists('music'):
+        os.makedirs("music")
+        file_location = os.path.join("music", file.filename)
         with open(file_location, "wb") as buffer:
             buffer.write(await file.read())
     else:
         file_location = os.path.join("music", file.filename)
         with open(file_location, "wb") as buffer:
-            buffer.write(await file.read()) 
-     
-    return {"filename": file.filename,"status":200}
+            buffer.write(await file.read())  
+    return {
+        "filename": file.filename,
+        "content_type": file.content_type,
+        "beamsize": beamsize,
+        "temperature": temperature,
+        "branchFactor": branchFactor,
+        "notes": notes,
+        "totalSteps": totalSteps
+    }
 
 

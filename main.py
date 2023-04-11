@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 # Mount the "music" folder as a static directory
-# app.mount("/music", StaticFiles(directory="music"), name="music")
+app.mount("/music", StaticFiles(directory="music"), name="music")
 app.include_router(music_router, prefix=prefix)  
 app.include_router(melody_router, prefix=prefix)  
 # @app.post("/upload-music")
