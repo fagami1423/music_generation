@@ -7,7 +7,7 @@ FROM python:3.8
 WORKDIR /app
 
 COPY requirements.txt /app/
-RUN pip install fastapi uvicorn python-multipart
+RUN pip install --default-timeout=60 fastapi uvicorn python-multipart
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Add the following lines to copy and run the list_packages.py script
