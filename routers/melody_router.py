@@ -1,8 +1,9 @@
 import os
 from fastapi import FastAPI, UploadFile, File, Form, APIRouter
 from fastapi.responses import FileResponse, JSONResponse
+from magenta.models.performance_rnn import performance_sequence_generator
 from pydantic import BaseModel
-# from ..models.melody.music_vae_model import MusicGeneratorVAE
+from models.melody.rnn_model import RNNModel
 
 class UploadForm(BaseModel):
     beamsize: int
@@ -10,6 +11,7 @@ class UploadForm(BaseModel):
     branchFactor: int
     notes: str
     totalSteps: int
+rna_model = RNNModel()
 
 melody_router = APIRouter()
 # music_generator = MusicGeneratorVAE()
@@ -22,15 +24,24 @@ async def create_upload_file(file: UploadFile = File(...),
                 notes: str = Form(...),
                 totalSteps: int = Form(...)):
     
-    if not os.path.exists('music'):
-        os.makedirs("music")
-        file_location = os.path.join("music", file.filename)
+    target_dir = 'models/melody/primers'
+    if not os.path.exists('models/melody/primers'):
+        os.makedirs(target_dir)
+        file_location = os.path.join(target_dir, file.filename)
         with open(file_location, "wb") as buffer:
             buffer.write(await file.read())
     else:
-        file_location = os.path.join("music", file.filename)
+        file_location = os.path.join(target_dir, file.filename)
         with open(file_location, "wb") as buffer:
             buffer.write(await file.read())  
+    # print("filename: ",file.filename)
+    rna_model.generate(
+        "performance_with_dynamics.mag",
+        performance_sequence_generator,
+        "performance_with_dynamics",
+        primer_filename="Fur_Elisa_Beethoveen_Polyphonic.mid"
+    )
+    # generate("performance_with_dynamics.mag",performance_sequence_generator,"performance_with_dynamics",primer_filename=file.filename)
     return {
         "filename": file.filename,
         "content_type": file.content_type,

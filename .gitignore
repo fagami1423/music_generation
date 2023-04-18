@@ -1,9 +1,12 @@
 *.mid
 *.wav
 /__pycache__/*
-*/__pycache__/*
+**/__pycache__/*
 *.abc
 */checkpoints
 *.tar
 *.mid
-
+venv/
+models/Music_VAE/default.sf2
+bundles
+*.mag

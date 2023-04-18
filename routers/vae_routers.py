@@ -3,26 +3,45 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from models.Music_VAE.music_vae_model import MusicGeneratorVAE
 
-music_router = APIRouter()
+vae_router = APIRouter()
 music_generator = MusicGeneratorVAE()
 
-class InterpolationInput(BaseModel):
-    num_output: int
+class RequestData(BaseModel):
+    numbars: int
+    numSample: int
+    instrument: str
+    filename: str
 
-@music_router.post("/sample/")
-async def sample_midi() -> FileResponse:
-    output_path = music_generator.sample()
-    return FileResponse(output_path, media_type="audio/midi")
+@vae_router.post("/drum")
+async def sample_midi(request_data: RequestData):
+   
+    output_path = music_generator.sample("nade-drums_2bar_full",request_data.numSample,request_data.filename,True)
+    return {
+                "numbars":request_data.numbars,
+                "numSample":request_data.numSample,
+                "instrument":request_data.instrument,
+                "filename":request_data.filename
+            }
 
-@music_router.post("/interpolate/")
-async def interpolate_midi(input_data: InterpolationInput) -> FileResponse:
-    output_path = music_generator.interpolate(num_output=input_data.num_output)
-    return FileResponse(output_path, media_type="audio/midi")
+@vae_router.post("/piano")
+async def interpolate_midi(request_data: RequestData):
+    output_path = music_generator.interpolate("cat-mel_2bar_big",request_data.numSample,6,request_data.filename,True)
+    return {
+                "numbars":request_data.numbars,
+                "numSample":request_data.numSample,
+                "instrument":request_data.instrument,
+                "filename":request_data.filename
+            }
 
-@music_router.post("/groove/")
-async def add_groove() -> FileResponse:
-    output_path = music_generator.groove()
-    return FileResponse(output_path, media_type="audio/midi")
+@vae_router.post("/groove")
+async def add_groove(request_data: RequestData):
+    output_path = music_generator.groove("groovae_2bar_humanize",2,request_data.numSample,6,request_data.filename)
+    return {
+                "numbars":request_data.numbars,
+                "numSample":request_data.numSample,
+                "instrument":request_data.instrument,
+                "filename":request_data.filename
+            }
 
 # @app.post("/upload/")
 # async def upload_midi(file: UploadFile = File(...)):

@@ -15,6 +15,9 @@ class MusicGeneratorVAE:
         self.num_bar_per_sample = 2
         self.num_steps_per_sample = self.num_bar_per_sample * DEFAULT_STEPS_PER_BAR
         self.total_bars = self.num_output * self.num_bar_per_sample
+        self.drum_model = self.get_model("nade-drums_2bar_full")
+        self.piano_model = self.get_model("cat-mel_2bar_big")
+        self.groove_model = self.get_model("groovae_2bar_humanize")
 
     def download_checkpoint(self, model_name, checkpoint_name, target_dir):
         if not os.path.exists(target_dir):
@@ -36,54 +39,73 @@ class MusicGeneratorVAE:
     def get_model(self, name):
         print("im here at get_model function")
         checkpoint = name + ".tar"
-        self.download_checkpoint("music_vae", checkpoint, "checkpoints")
-        return TrainedModel(
-            configs.CONFIG_MAP[name.split(".")[0] if "." in name else name],
-            batch_size=8,
-            checkpoint_dir_or_path=os.path.join("checkpoints", checkpoint))
-
-    def sample(self, model_name, num_steps_per_sample):
-        model = self.get_model(model_name)
+        if not os.path.exists("checkpoints/" + checkpoint):
+            self.download_checkpoint("music_vae", checkpoint, "checkpoints")
+            return TrainedModel(
+                    configs.CONFIG_MAP[name.split(".")[0] if "." in name else name],
+                    batch_size=8,
+                    checkpoint_dir_or_path=os.path.join("checkpoints", checkpoint))
+        else:
+            return TrainedModel(
+                configs.CONFIG_MAP[name.split(".")[0] if "." in name else name],
+                batch_size=8,
+                checkpoint_dir_or_path=os.path.join("checkpoints", checkpoint))
+        
+    #drums
+    def sample(self,model_name, num_steps_per_sample,filename,create_file=False):
+        
+        model = self.drum_model
+        num_steps_per_sample = self.num_bar_per_sample * DEFAULT_STEPS_PER_BAR
         sample_sequences = model.sample(n=2, length=num_steps_per_sample)
-        midi_file = save_midi(sample_sequences, "sample", model_name)
-        return midi_file
+        if create_file:
+            save_midi(sample_sequences, "sample", model_name,filename)
+        return sample_sequences
 
-    def interpolate(self, model_name, sample_sequences, num_steps_per_sample, num_output, total_bars):
+    #piano
+    def interpolate(self, model_name, num_steps_per_sample, num_output,filename,create_file=False):
+        model = self.piano_model
+        sample_sequences = model.sample(n=2, length=self.num_steps_per_sample)
+        print("sample_sequences",len(sample_sequences))
         if len(sample_sequences) != 2:
             raise Exception(f"Wrong number of sequences, expected: 2, actual: {len(sample_sequences)}")
         if not sample_sequences[0].notes or not sample_sequences[1].notes:
             raise Exception(f"Empty note sequences, sequence 1 length: {len(sample_sequences[0].notes)}, sequence 2 length: {len(sample_sequences[1].notes)}")
-
-        model = self.get_model(model_name)
+        
         interpolate_sequences = model.interpolate(
             start_sequence=sample_sequences[0],
             end_sequence=sample_sequences[1],
-            num_steps=num_output,
-            length=num_steps_per_sample)
+            num_steps=self.num_output,
+            length=self.num_steps_per_sample)
 
         interpolate_sequence = mm.sequences_lib.concatenate_sequences(interpolate_sequences, [4] * num_output)
-        save_midi(interpolate_sequence, "merge", model_name)
+        if create_file:
+            save_midi(interpolate_sequence, "merge", model_name,filename)
 
         return interpolate_sequence
 
-    def groove(self, model_name, interpolate_sequence, num_steps_per_sample, num_output, total_bars):
-        model = self.get_model(model_name)
-        split_interpolate_sequences = mm.sequences_lib.split_note_sequence(interpolate_sequence, 4)
+    #mix-
+    def groove(self, model_name, interpolate_sequence, num_steps_per_sample, num_output,filename):
+        # num_steps_per_sample = self.num_steps_per_sample
+        # sample_sequences = self.sample("cat-drums_2bar_small.lokl", num_steps_per_sample, filename)
+        # interpolate_sequence = self.interpolate("cat-drums_2bar_small.hikl",sample_sequences, num_steps_per_sample, self.num_output,filename)
+        model = self.groove_model
+        # split_interpolate_sequences = mm.sequences_lib.split_note_sequence(interpolate_sequence, 4)
 
-        if len(split_interpolate_sequences) != num_output:
-            raise Exception(f"Wrong number of interpolate size, expected: 10, actual: {len(split_interpolate_sequences)}")
+        # if len(split_interpolate_sequences) != num_output:
+        #     raise Exception(f"Wrong number of interpolate size, expected: 10, actual: {len(split_interpolate_sequences)}")
 
-        encoding, mu, sigma = model.encode(note_sequences=split_interpolate_sequences)
-        groove_sequences = model.decode(z=encoding, length=num_steps_per_sample)
-        groove_sequence = mm.sequences_lib.concatenate_sequences(groove_sequences, [4] * num_output)
+        # encoding, mu, sigma = model.encode(note_sequences=split_interpolate_sequences)
+        # groove_sequences = model.decode(z=encoding, length=num_steps_per_sample)
+        # groove_sequence = mm.sequences_lib.concatenate_sequences(groove_sequences, [4] * num_output)
+        groove_sequence = model.sample(n=2, length=num_steps_per_sample)
 
-        save_midi(groove_sequence, "groove", model_name)
+        save_midi(groove_sequence, "groove", model_name,filename)
         return groove_sequence
     
-    def generate_music(self):
-        generated_sample_sequences = self.sample("cat-drums_2bar_small.lokl", self.num_steps_per_sample)
-        generated_interpolate_sequence = self.interpolate("cat-drums_2bar_small.hikl", generated_sample_sequences, self.num_steps_per_sample, self.num_output, self.total_bars)
-        generated_groove_sequence = self.groove("groovae_2bar_humanize", generated_interpolate_sequence, self.num_steps_per_sample, self.num_output, self.total_bars)
+    def generate_music(self,filename):
+        generated_sample_sequences = self.sample("cat-drums_2bar_small.lokl", self.num_steps_per_sample,filename)
+        generated_interpolate_sequence = self.interpolate("cat-drums_2bar_small.hikl", generated_sample_sequences, self.num_steps_per_sample, self.num_output, self.total_bars,filename)
+        generated_groove_sequence = self.groove("groovae_4bar", generated_interpolate_sequence, self.num_steps_per_sample, self.num_output, self.total_bars,filename)
 
         print(f"Generated groove sequence total time: {generated_groove_sequence.total_time}")
 
