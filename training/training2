@@ -1,0 +1,51 @@
+import tensorflow as tf
+import magenta.music as mm
+from magenta.models.music_vae import TrainedModel
+from magenta.protobuf import music_pb2
+from magenta.music import midi_io
+
+# Set directory containing MIDI files
+midi_dir = 'path/to/midi/files/'
+
+# Load MIDI files and convert to NoteSequence format
+midi_files = mm.io.midi.get_filenames(midi_dir)
+note_sequences = []
+for midi_file in midi_files:
+    try:
+        note_seq = midi_io.midi_file_to_note_sequence(midi_file)
+        note_sequences.append(note_seq)
+    except:
+        print(f"Error parsing MIDI file: {midi_file}")
+
+# Split preprocessed data into training and validation sets
+split_ratio = 0.8
+train_size = int(split_ratio * len(note_sequences))
+train_seqs = note_sequences[:train_size]
+val_seqs = note_sequences[train_size:]
+
+# Define MusicVAE model
+model = TrainedModel(
+    config=None,
+    batch_size=4,
+    checkpoint_dir_or_path='path/to/trained/model',
+    mode='sample')
+
+# Train the model
+for i in range(100):
+    # Generate a random sequence to use as a primer
+    primer_seq = music_pb2.NoteSequence()
+    primer_seq = model.sample(n=1, length=32)[0]
+    # Encode the primer sequence into the latent space
+    encoding, mu, sigma = model.encode([primer_seq])
+    # Train the model for one iteration using the encoding and the ground truth sequence
+    model.train((encoding, train_seqs), [(mu, sigma)])
+    # Evaluate the model on the validation set
+    loss = model.evaluate((encoding, val_seqs), [(mu, sigma)])
+    print(f"Iteration {i+1} loss: {loss}")
+    
+# Generate new music samples using the trained model
+generated_seqs = model.sample(n=5, length=128)
+
+# Save generated sequences to MIDI files
+for i, gen_seq in enumerate(generated_seqs):
+    midi_io.note_sequence_to_midi_file(gen_seq, f'generated_{i+1}.mid')
