@@ -11,6 +11,7 @@ https://colinraffel.com/projects/lmd/
 
 ### The project folder structure 
 ```
+-- checkpoints
 -- models
 |   |-- melody
         |-- primers
@@ -20,9 +21,9 @@ https://colinraffel.com/projects/lmd/
 |   |-- Music_Vae
         |-- helper_utils.py
         |-- music_vae_model.py
-|-- music/
-|-- output/
-    |--drums
+|-- music/ //AI generated wav format
+|-- output/ //AI generated outputs in midi format
+    |--drums 
     |--sample
     |--merge
     |--mixer
