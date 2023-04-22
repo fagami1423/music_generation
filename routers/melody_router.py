@@ -11,7 +11,7 @@ class UploadForm(BaseModel):
     branchFactor: int
     notes: str
     totalSteps: int
-rna_model = RNNModel()
+rna_model = RNNModel("pitch_conditioned_performance_with_dynamics")
 
 melody_router = APIRouter()
 # music_generator = MusicGeneratorVAE()
@@ -36,10 +36,11 @@ async def create_upload_file(file: UploadFile = File(...),
             buffer.write(await file.read())  
     # print("filename: ",file.filename)
     rna_model.generate(
-        "performance_with_dynamics.mag",
+        "pitch_conditioned_performance_with_dynamics.mag",
         performance_sequence_generator,
-        "performance_with_dynamics",
-        primer_filename="Fur_Elisa_Beethoveen_Polyphonic.mid"
+        "pitch_conditioned_performance_with_dynamics",
+        primer_filename=file.filename,
+        pitch_class_histogram="[1, 0, 1, 0, 1, 2, 0, 1, 0, 1, 0, 1]"
     )
     # generate("performance_with_dynamics.mag",performance_sequence_generator,"performance_with_dynamics",primer_filename=file.filename)
     return {
