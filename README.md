@@ -8,13 +8,39 @@ jam machine - https://github.com/m41w4r3exe/the-jam-machine
 https://hub.docker.com/r/misnaej/the_jam_machine
 
 https://colinraffel.com/projects/lmd/
+
+### The project folder structure 
+```
+-- models
+|   |-- melody
+        |-- primers
+        |-- bundles
+        |-- helper.utils.py
+        |-- rnn_model.py
+|   |-- Music_Vae
+        |-- helper_utils.py
+        |-- music_vae_model.py
+|-- music/
+|-- output/
+    |--drums
+    |--sample
+    |--merge
+    |--mixer
+|-- Training/
+|-- .gitignore
+|-- .gitignore
+|-- docker-compose.yml
+|-- main.py
+|-- README.md
+|-- requirements.txt
+```
 Create virtual environment and activate 
 
 Install the packages
 ```
 pip install -r requirements.txt
 ```
-## To tun the project 
+### To tun the project 
 ```
 uvicorn main:app --reload
 ```
