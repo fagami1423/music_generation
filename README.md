@@ -8,8 +8,12 @@ jam machine - https://github.com/m41w4r3exe/the-jam-machine
 https://hub.docker.com/r/misnaej/the_jam_machine
 
 https://colinraffel.com/projects/lmd/
+Create virtual environment and activate 
 
-
+Install the packages
+```
+pip install -r requirements.txt
+```
 ## To tun the project 
 ```
 uvicorn main:app --reload
@@ -19,8 +23,7 @@ The default url for the application will be
 ```
 http://localhost:8000/docs
 ```
-Or open test using Postman or Isomnia
-using Docker 
+Using Docker
 ```
 docker compose up -d        
 ```
