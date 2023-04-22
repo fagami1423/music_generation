@@ -1,5 +1,5 @@
 # Music Generation using Tensorflow
-This project aims to
+his project aims to generate and continue music using various machine-learning models. Specifically, we utilize the Long Short-Term Memory (LSTM) model and the Variational Autoencoder (VAE) for music generation. Our LSTM architecture includes 1024 Recurrent Neural Network (RNN) units and is initialized with the Glorot uniform distribution. The input music tokens are first passed through a learnable embedding layer to create 256-dimensional vectors, which are then recursively fed into the LSTM layer.
 
 Here are the useful documents to read before starting the project
 magenta docs - https://github.com/PacktPublishing/hands-on-music-generation-with-magenta
@@ -20,9 +20,7 @@ The default url for the application will be
 http://localhost:8000/docs
 ```
 Or open test using Postman or Isomnia
-### Tasks
-1: File handling
-2: Testing Models 
-3: Generating musics
-4: Containerize
-4: Implement CICD pipelines
+using Docker 
+```
+docker compose up -d        
+```
